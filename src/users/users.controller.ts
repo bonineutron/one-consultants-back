@@ -21,12 +21,15 @@ export class UsersController {
   }
 
   @Post('/create')
-  async createUser(@Res() res, @Body() createUserDTO: CreateUserDTO): Promise<IUser> {
+  async createUser(@Res() res, @Body() createUserDTO: CreateUserDTO[]): Promise<IUser> {
     try {
-      let user = await this.usersService.createUser(createUserDTO);
+      const loopUsers = async (user: CreateUserDTO) => {
+        await this.usersService.createUser(user);
+      };
+      createUserDTO.forEach((user: CreateUserDTO) => loopUsers(user));
       return res.status(HttpStatus.OK).json({
         message: 'User Successfully Created',
-        user
+        createUserDTO
       });
     } catch (error) {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
